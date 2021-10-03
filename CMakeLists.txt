@@ -58,6 +58,7 @@ add_message_files(
  add_service_files(
    FILES
    draw.srv
+   Start.srv
 
 )
 
@@ -106,7 +107,12 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES turtle_control
-#  CATKIN_DEPENDS other_catkin_pkg
+   CATKIN_DEPENDS 
+   turtlesim
+   std_msgs
+   message_runtime
+   
+   
 #  DEPENDS system_lib
 )
 
@@ -165,6 +171,14 @@ catkin_install_python(PROGRAMS
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
+catkin_install_python(PROGRAMS nodes/translate.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+catkin_install_python(PROGRAMS
+    nodes/follow.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 # install(TARGETS ${PROJECT_NAME}_node
