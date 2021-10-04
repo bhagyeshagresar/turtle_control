@@ -18,8 +18,10 @@ from math import atan2,sqrt
 
 
 def callback(data):
-    turtle_pos = Pose()
-    return(turtle_pos(data.x), turtle_pos(data.y), turtle_pos(data.theta))
+    turtle_pos = data
+    turtle_pos.x = data.x, 
+    turtle_pos.y = data.y, 
+    turtle_pos.theta = data.theta
     
 
 
@@ -94,6 +96,7 @@ def restart_fn(req):
 
         current_distance = 0
         t0 = rospy.Time.now().to_sec()
+        r = rospy.Rate(10)
 
 
         while (current_distance < (dist1+dist2+dist3+dist4)):
@@ -103,15 +106,17 @@ def restart_fn(req):
                     vel_pub.publish(turtle_velocities.linear)
                     t1 = rospy.Time.now().to_sec()
                     current_distance = turtle_velocities.linear * (t1 - t0)
+                   
                 else:
                     vel_pub.publish(turtle_velocities.angular)
-        
+                r.rospy.sleep()
 
             while(current_distance < dist2):
                 if (first_angle == second_angle):
                     vel_pub.publish(turtle_velocities.linear)
                     t2 = rospy.Time.now().to_sec()
                     current_distance = turtle_velocities.linear * (t2 - t1)
+                    
                 else:
                     vel_pub.publish(turtle_velocities.angular)
             
@@ -121,6 +126,7 @@ def restart_fn(req):
                     vel_pub.publish(turtle_velocities.linear)
                     t3 = rospy.Time.now().to_sec()
                     current_distance = turtle_velocities.linear * (t3 - t2)
+                   
                 else:
                     vel_pub.publish(turtle_velocities.angular)
 
@@ -130,9 +136,9 @@ def restart_fn(req):
                     vel_pub.publish(turtle_velocities.linear)
                     t4 = rospy.Time.now().to_sec()
                     current_distance = turtle_velocities.linear * (t4 - t3)
+                    r.sleep()
                 else:
                     vel_pub.publish(turtle_velocities.angular)
-
 
         
 
