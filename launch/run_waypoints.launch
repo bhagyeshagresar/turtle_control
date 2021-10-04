@@ -1,0 +1,18 @@
+<launch>
+
+<!-- setup node -->
+
+<node name="setup" type="setup" pkg="turtle_control" output="screen">
+</node>
+
+<!--translate  node -->
+
+<node name="translate" type="translate" pkg="turtle_control" output="screen">
+</node>
+
+<!--follow  node -->
+
+<node name="follow" type="follow" pkg="turtle_control" output="screen">
+</node>
+
+</launch>
