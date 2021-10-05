@@ -17,10 +17,9 @@ from geometry_msgs.msg import Twist
 
 
 def callback(data):
-"""
-callback function publishes 3D velocities of type Twist
-
-"""
+    """
+    callback function publishes 3D velocities of type Twist
+    """
     rospy.loginfo("Received 2D velocities")
     velocities_3D = Twist()
     velocities_3D.linear.x = data.linear
@@ -31,11 +30,11 @@ callback function publishes 3D velocities of type Twist
 
 
 def translate():
-"""
-Initialize the translate node.
-In this the node subscribes to the turtle_cmd topic
+    """
+    Initialize the translate node.
+    In this the node subscribes to the turtle_cmd topic
 
-"""
+    """
     rospy.init_node('translate', anonymous = True)
     sub = rospy.Subscriber('turtle_cmd', TurtleVelocity, callback)
     

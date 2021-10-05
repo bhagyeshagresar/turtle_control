@@ -27,12 +27,10 @@ from std_srvs.srv import Empty, EmptyResponse
 import math
 from math import atan2,sqrt
 
-#def callback_1(data):
-#    return(Twist(Vector3(linear.x, linear.y, angular.z)),Vector3(linear.x, linear.y, angular.z)))
+
 
 PI = 3.14
 i = 0
-dish_tresh = 0.05
 t0 = 0
 t1 = 0
 t2 = 0
@@ -40,45 +38,28 @@ t3 = 0
 init_x = 0
 init_y = 0
 
-def callback(data):
- """
- Collects the waypoints, calculates the orientation of the turtle with respect to the waypoints and publishes velocity messages on turtle_cmd
+def callback(data):   
+    """
+    Collects the waypoints, calculates the orientation of the turtle with respect to the waypoints and publishes velocity messages on turtle_cmd
+
+    Args:
+        data
+
+    Returns:
+        None
+
+    """
 
 
 
-
-
-
- """   
-    
+  
     turtle_pos = data
     
     
     
     waypoints = rospy.get_param("/waypoint")
-    #initial_pos = Pose() # x, y, theta
-        
-    ###dist1 = sqrt((waypoints[0][0] - initial_pos.x)**2 +(waypoints[0][1] - initial_pos.y)**2)
-    #dist2 = sqrt((waypoints[1][0] - waypoints[0][0])**2 + (waypoints[1][1] - waypoints[0][1])**2)
-    #dist3 = sqrt((waypoints[2][0] - waypoints[1][0])**2 + (waypoints[2][1] - waypoints[1][1])**2)
-    #dist4 = sqrt((waypoints[3][0] - waypoints[2][0])**2 + (waypoints[3][1] - waypoints[2][1])**2)
-
-    #waypoint_1 = Pose()
-    #waypoint_2 = Pose()
-    #waypoint_3 = Pose()
-    #waypoint_4 = Pose()
-
-    #waypoint_1.x = waypoints[0][0]
-    #waypoint_1.y = waypoints[0][1]
-        
-    #waypoint_2.x = waypoints[1][0]
-    #waypoint_2.y = waypoints[1][1]
-        
-    #waypoint_3.x = waypoints[2][0]
-    #waypoint_3.y = waypoints[2][1]
-        
-    #waypoint_4.x = waypoints[3][0]
-    #waypoint_4.y = waypoints[3][1]
+    
+    
 
 
     vel_pub = rospy.Publisher('turtle_cmd', TurtleVelocity, queue_size = 10)
@@ -105,26 +86,21 @@ def callback(data):
 
     initial_angle = turtle_pos.theta #converting the initial angle of turtle from degrees to radians
 
-        #first angle represents the angle made by the initial position of the turtle with respect to the first waypoint 
+    #first angle represents the angle made by the initial position of the turtle with respect to the first waypoint 
 
     first_angle = atan2(diff_1_y, diff_1_x)    
     second_angle = atan2(diff_2_y, diff_2_x)
     third_angle = atan2(diff_3_y, diff_3_x)
     fourth_angle = atan2(diff_4_y, diff_4_x)
 
-    #current_distance = 0
-    #t0 = rospy.Time.now().to_sec()
-    #r = rospy.Rate(10)
+    
 
     rospy.loginfo(first_angle)
     rospy.loginfo(initial_angle)
     if (first_angle - initial_angle > 0.5): #a < x < b
         turtle_velocities.linear = 0
         vel_pub.publish(turtle_velocities)
-        #t1 = rospy.Time.now().to_sec()
-        #current_distance = linear_speed * (t1 - t0)
-        #if (current_distance == dish_tresh):
-        #    i+=1       
+             
     else:
         turtle_velocities.angular = 0
         vel_pub.publish(turtle_velocities)
@@ -132,10 +108,10 @@ def callback(data):
             turtle_velocities.angular = 0
             turtle_velocities.linear = 0
             vel_pub.publish(turtle_velocities)
-            #r.rospy.sleep()
+            
 
 
-    if (second_angle - first_angle > 0.5): #a < x < b
+    '''if (second_angle - first_angle > 0.5): #a < x < b
         turtle_velocities.linear = 0
         vel_pub.publish(turtle_velocities)
         #t1 = rospy.Time.now().to_sec()
@@ -144,7 +120,7 @@ def callback(data):
         #    i+=1       
     else:
         turtle_velocities.angular = 0
-        vel_pub.publish(turtle_velocities)
+        vel_pub.publish(turtle_velocities)'''
     
     '''if (first_angle == second_angle): #change to some range
         turtle_velocities.angular = 0
@@ -247,13 +223,13 @@ def restart_fn(req):
 
 
 def follower():
-"""
-This function initalizes the follower node. 
+    """
+    This function initalizes the follower node. 
+    
+    The node will provide restart service to reset and draw the waypoints by calling the draw service
 
-The node will provide restart service to reset and draw the waypoints by calling the draw service
 
-
-"""
+    """
     rospy.init_node('follower', anonymous = True)
     
     
