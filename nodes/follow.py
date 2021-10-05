@@ -58,12 +58,12 @@ def callback(data):
     vel_pub = rospy.Publisher('turtle_cmd', TurtleVelocity, queue_size = 10)
 
     turtle_velocities= TurtleVelocity()
-    turtle_velocities.linear = 0.05
-    turtle_velocities.angular = 0.05
+    turtle_velocities.linear = 0.5
+    turtle_velocities.angular = 0.5
     rospy.loginfo(turtle_velocities)
 
-    linear_speed = 0.05
-    angular_speed = 0.05
+    linear_speed = 0.5
+    angular_speed = 0.5
 
     diff_1_x = waypoints[0][0] - turtle_pos.x
     diff_1_y = waypoints[0][1] - turtle_pos.y
@@ -97,13 +97,28 @@ def callback(data):
         vel_pub.publish(turtle_velocities)
         #t1 = rospy.Time.now().to_sec()
         #current_distance = linear_speed * (t1 - t0)
-        if (current_distance == dish_tresh):
-            i+=1       
+        #if (current_distance == dish_tresh):
+        #    i+=1       
     else:
         turtle_velocities.angular = 0
         vel_pub.publish(turtle_velocities)
+        if (diff_1_x == 0 and diff_1_y == 0):
+            turtle_velocities.angular = 0
+            turtle_velocities.linear = 0
+            vel_pub.publish(turtle_velocities)
             #r.rospy.sleep()
 
+
+    if (second_angle - first_angle > 0.5): #a < x < b
+        turtle_velocities.linear = 0
+        vel_pub.publish(turtle_velocities)
+        #t1 = rospy.Time.now().to_sec()
+        #current_distance = linear_speed * (t1 - t0)
+        #if (current_distance == dish_tresh):
+        #    i+=1       
+    else:
+        turtle_velocities.angular = 0
+        vel_pub.publish(turtle_velocities)
     
     '''if (first_angle == second_angle): #change to some range
         turtle_velocities.angular = 0
