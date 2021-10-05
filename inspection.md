@@ -7,12 +7,12 @@ Unless otherwise specified, list the command and all arguments that you passed t
 
 ## Setup Instructions
 1. Compile the workspace by executing `catkin_make`
-2. Initialize the ROS environment (i.e., set the necessary ROS environment variables) by executing `source /opt/ros/noetic/setup.bash`
+2. Initialize the ROS environment (i.e., set the necessary ROS environment variables) by executing `source devel/setup.bash`
 3. Make sure no other ROS nodes are running prior to starting. 
 3. Run the launchfile `/ws/src/crazy_turtle/go_crazy_turtle.launch` by executing `roslaunch crazy_turtle go_crazy_turtle.launch`
-4. When running you can see a visual depiction of the ROS graph using the `rqt_graph` command.
+4. When running you can see a visual depiction of the ROS graph using the `rosrun rqt_graph rqt_graph` command.
    The ROS graph, including all topics and node labels, looks like:
-   ![${The ROS Graph}](${path_to_image_here_include_image_in_your_repository})
+   ![${https://github.com/ME495-EmbeddedSystems/homework-1-bhagyeshagresar/blob/main/HW_Part1_rosgraph.png}](${path_to_image_here_include_image_in_your_repository})
 
 ## Runtime Information
 The `launchfile` from above should be running at all times when executing these commands.
@@ -24,6 +24,7 @@ If the nodes launched from the `launchfile` are not running, you will get incorr
    /mover
    /rosout
    /roving_turtle
+   /rqt_gui_py_node_8884
 
    ```
 6. Use the ROS command `rostopic list` to list the topics
@@ -31,13 +32,14 @@ If the nodes launched from the `launchfile` are not running, you will get incorr
    ```
    /rosout
    /rosout_agg
+   /statistics
    /turtle1/cmd_vel
    /turtle1/color_sensor
    /turtle1/pose
    ```
 
 7. Use the ROS command `rostopic hz /turtle1/cmd_vel` to verify that the frequency of
-   the `/turtle1/cmd_vel` topic is `120.004 Hz`
+   the `/turtle1/cmd_vel` topic is `119.998 Hz`
 
 8. Use the ROS command `rosservice list` to list the services.
    The output of the command looks like
@@ -80,10 +82,26 @@ If the nodes launched from the `launchfile` are not running, you will get incorr
     ```
 
 ## Package and Dependencies
-11. Use the ROS command `${command and args}` to list the types of services defined by `crazy_turtle`
+11. Use the ROS command `rosservice list` to list the types of services defined by `crazy_turtle`
     The output of the command looks like
     ```
-    ${list service types here}
+    /clear
+    /kill
+    /mover/get_loggers
+    /mover/set_logger_level
+    /reset
+    /rosout/get_loggers
+    /rosout/set_logger_level
+    /roving_turtle/get_loggers
+    /roving_turtle/set_logger_level
+    /rqt_gui_py_node_8884/get_loggers
+    /rqt_gui_py_node_8884/set_logger_level
+    /spawn
+    /switch
+    /turtle1/set_pen
+    /turtle1/teleport_absolute
+    /turtle1/teleport_relative
+
     ```
 12. Use the ROS command `rospack depends1 crazy_turtle` to list the immediate (direct) dependencies of `crazy_turtle`
    The output of the command looks like
@@ -99,8 +117,8 @@ If the nodes launched from the `launchfile` are not running, you will get incorr
     (Hint: use `rossrv info` on the type of the `/switch` service to see the parameters.
      To test the behavior, look at the code or try calling with `x = 1`, `y = 1`, once with `linear_velocity = 0` and `angular_velocity = 0` and once with these at different nonzero values.)
 14. What is the value of the `/mover/velocity` parameter? `4.5`
-15. What happens to the turtle's motion if you change `/mover/velocity` to 10 while the turtlesim and mover node are running? same
+15. What happens to the turtle's motion if you change `/mover/velocity` to 10 while the turtlesim and mover node are running? `same`
 16. Use the ROS command `rosnode kill /mover` to kill the `/mover` node.
-17. Use the ROS command `${command and args}` to start the `/mover` node. Be sure to
+17. Use the ROS command `rosrun crazy_turtle mover cmd_vel:=/turtle1/cmd_vel` to start the `/mover` node. Be sure to
     remap `cmd_vel` to `/turtle1/cmd_vel`.
-18. What happened to the turtle's velocity after relaunching `mover`? `${faster | slower | same}`
+18. What happened to the turtle's velocity after relaunching `mover`? `faster`
