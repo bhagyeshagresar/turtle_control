@@ -1,5 +1,20 @@
 #!/usr/bin/env python
+"""
+Publishes velocity messages to move the turtle in the direction of the waypoints.
 
+Publisher:
+topic - turtle_cmd  message type - turtle_control/TurtleVelocity
+
+Subscriber:
+topic - /turtle1/pose message type - turtlesim/Pose
+
+Server:
+topic - /restart message type - turtle_control/Start
+
+
+
+
+"""
 
 import rospy
 from turtlesim.msg import Pose
@@ -26,7 +41,18 @@ init_x = 0
 init_y = 0
 
 def callback(data):
+ """
+ Collects the waypoints, calculates the orientation of the turtle with respect to the waypoints and publishes velocity messages on turtle_cmd
+
+
+
+
+
+
+ """   
+    
     turtle_pos = data
+    
     
     
     waypoints = rospy.get_param("/waypoint")
@@ -163,6 +189,18 @@ def callback(data):
 
     
 def restart_fn(req):
+
+    """
+    collects the waypoints, resets the turtle, draws the waypoints
+
+    Args:
+    req
+
+    Returns:
+    
+    distance - the distance covered by the turtle by moving from the starting position to the final waypoint
+
+    """
     init_x = req.x
     init_y = req.y
     
@@ -209,9 +247,14 @@ def restart_fn(req):
 
 
 def follower():
-    #rospy.get_param("/waypoint")
+"""
+This function initalizes the follower node. 
+
+The node will provide restart service to reset and draw the waypoints by calling the draw service
+
+
+"""
     rospy.init_node('follower', anonymous = True)
-    #rospy.Subscriber('/turtle1/pose', Pose, callback)
     
     
     rospy.Service('restart', Start, restart_fn)

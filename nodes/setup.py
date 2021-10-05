@@ -1,5 +1,10 @@
 #!/usr/bin/env python
+"""
+setup node implements a draw service to draw all the waypoints.
 
+service topic : draw, service type : std_srvs/Empty
+
+"""
 
 import rospy
 from turtlesim.srv import TeleportRelative, TeleportAbsolute, SetPen
@@ -9,6 +14,15 @@ import yaml
 
 
 def draw_waypoints(req):
+"""
+This function calls the 'reset', 'turtle1/teleport_absolute', 'turtle1/teleport_absolute', 'turtle1/teleport_relative' and the 'turtle1/set_pen' services
+to draw the waypoints
+    Args:
+    req
+
+    Returns:
+    EmptyResponse()
+"""
     restart_turtlesim = rospy.ServiceProxy('reset', Empty)
     restart_turtlesim()
     waypoints = rospy.get_param("/waypoint")
@@ -26,6 +40,9 @@ def draw_waypoints(req):
         teleport_turtle_rel(0.5, 0)
         teleport_turtle_rel(-1.0, 0)
         teleport_turtle_rel(0.5, 0)
+        turtle_set_pen(255, 255, 0, 5, True)
+        teleport_turtle_abs(x[0], x[1], 30)
+
     
     return EmptyResponse()
 
@@ -34,6 +51,12 @@ def draw_waypoints(req):
     
 
 def server_function():
+"""
+initializes the 'server' node
+Declares the service 'draw'
+
+"""   
+
     rospy.init_node('server')
     s = rospy.Service('draw', Empty, draw_waypoints)
 
