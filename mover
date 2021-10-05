@@ -47,7 +47,7 @@ class Mover:
 
 
     def switch_callback(self, pose):
-        """ Callback function for the switch service
+        """ Callback function for the ${switch} service
         
         Kills turtle1 and respawns it an a new location
 
