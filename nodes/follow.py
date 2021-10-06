@@ -26,19 +26,10 @@ from turtle_control.srv import Start
 from std_srvs.srv import Empty, EmptyResponse
 import math
 from math import atan2,sqrt
+import json
 
 
-
-PI = 3.14
-i = 0
-t0 = 0
-t1 = 0
-t2 = 0
-t3 = 0
-init_x = 0
-init_y = 0
-
-def callback(data):   
+def call_back(data):   
     """
     Collects the waypoints, calculates the orientation of the turtle with respect to the waypoints and publishes velocity messages on turtle_cmd
 
@@ -49,120 +40,224 @@ def callback(data):
         None
 
     """
+    with open("counter.json",'r') as json_file:
+        counter_dict = json.load(json_file)
+    print("json dict", counter_dict)
+    counter = int(counter_dict["counter"])
+    if counter < len(waypoints):
 
-
-
-  
-    turtle_pos = data
+        # angle_new = args[1]
+        # angle_threshold = args[2]
+        # global goal
+        # goal = args[1]
+        # print("counter", counter)
+        # print("angle thresh", angle_threshold)
+        # print(data["Pose"])
+        # print(args[0])
+        # print("---")
+        # print(args[1])
+        # print(data)
+        # goal = args[0]
     
-    
-    
-    waypoints = rospy.get_param("/waypoint")
-    
-    
+        turtle_pos = data
 
+        angle_list = []
 
-    vel_pub = rospy.Publisher('turtle_cmd', TurtleVelocity, queue_size = 10)
+        vel_pub = rospy.Publisher('turtle_cmd', TurtleVelocity, queue_size = 20)
 
-    turtle_velocities= TurtleVelocity()
-    turtle_velocities.linear = 0.5
-    turtle_velocities.angular = 0.5
-    rospy.loginfo(turtle_velocities)
+        turtle_velocities= TurtleVelocity()
+        turtle_velocities.linear = 0.5
+        turtle_velocities.angular = 0.5
+        # rospy.loginfo(turtle_velocities)
 
-    linear_speed = 0.5
-    angular_speed = 0.5
+        # linear_speed = 0.5
+        # angular_speed = 0.5
+        #initial_angle = turtle_pos.theta #converting the initial angle of turtle from degrees to radians
 
-    diff_1_x = waypoints[0][0] - turtle_pos.x
-    diff_1_y = waypoints[0][1] - turtle_pos.y
+        #first angle represents the angle made by the initial position of the turtle with respect to the first waypoint 
+
+        # angle_list.append(data.theta)
+        # for indx,value in enumerate(waypoints):
+        # print(indx)
+        # print("---")
+        # print(value)
+
+        # rospy.loginfo(first_angle)
+        # rospy.loginfo(initial_angle)
         
-    diff_2_x = waypoints[1][0] - waypoints[0][0]
-    diff_2_y = waypoints[1][1] - waypoints[0][1]
+        # For reaching first waypoint:
+        current_pose = [data.x, data.y]
+        print("current_pose", current_pose)
+        goal = waypoints[counter]
+        dist1 = math.dist(goal, current_pose)
+        diff_1_x = goal[0] - current_pose[0]
+        diff_1_y = goal[1] - current_pose[1]
+        first_angle = atan2(diff_1_y, diff_1_x) 
 
-    diff_3_x = waypoints[2][0] - waypoints[1][0]
-    diff_3_y = waypoints[2][1] - waypoints[1][1]
+        print("data.theta",data.theta)
+        print("first_angle", first_angle)
 
-    diff_4_x = waypoints[3][0] - waypoints[2][0]
-    diff_4_y = waypoints[3][1] - waypoints[2][1]
-
-    initial_angle = turtle_pos.theta #converting the initial angle of turtle from degrees to radians
-
-    #first angle represents the angle made by the initial position of the turtle with respect to the first waypoint 
-
-    first_angle = atan2(diff_1_y, diff_1_x)    
-    second_angle = atan2(diff_2_y, diff_2_x)
-    third_angle = atan2(diff_3_y, diff_3_x)
-    fourth_angle = atan2(diff_4_y, diff_4_x)
-
-    
-
-    rospy.loginfo(first_angle)
-    rospy.loginfo(initial_angle)
-    if (first_angle - initial_angle > 0.5): #a < x < b
-        turtle_velocities.linear = 0
-        vel_pub.publish(turtle_velocities)
-             
-    else:
-        turtle_velocities.angular = 0
-        vel_pub.publish(turtle_velocities)
-        if (diff_1_x == 0 and diff_1_y == 0):
-            turtle_velocities.angular = 0
-            turtle_velocities.linear = 0
+        angle_new = data.theta
+        angle_diff = abs(first_angle - angle_new)
+        # else:
+        #     angle_diff = first_angle - angle_list[] 
+        print("angle_diff", angle_diff)
+        if (angle_diff > 0.5): 
+            turtle_velocities.linear = 0        #linear velocity = 0 and angular velocity = 0.5
             vel_pub.publish(turtle_velocities)
+            print("inside angle diff rotation")
+            # rospy.Subscriber('/turtle1/pose', Pose, callback, (counter, angle_new, angle_threshold))  #Rotate until it finds the first waypoint
+                
+        else:
+            print("inside angle diff stop")
+            turtle_velocities.angular = 0
+            print("dist1", dist1)
+            if (dist1 > 0.05):
+                print("inside distance moves")
+                vel_pub.publish(turtle_velocities) 
+                print("counter inside dist move", counter)
+                print("goal inside dist move", goal)
+                # if counter > 0:
+                    
+                #rospy.Subscriber('/turtle1/pose', Pose, callback, (counter, goal)) #Move towards the waypoint
+            else:
+                print("inside distance stops")
+                # rospy.loginfo()
+                # angle_threshold = 0.5
+                turtle_velocities.linear = 0
+                # angle_new = first_angle
+                vel_pub.publish(turtle_velocities)
+                
+                counter += 1
+                if counter < len(waypoints):
+                    goal = waypoints[counter]
+                with open("counter.json", 'w') as json_file:
+                    json.dump({"counter":counter}, json_file)
+                # if counter == len(waypoints)-1:
+                #     return 0
+                # counter = 0
+                # counter += 1
+                rospy.loginfo("waypoint reached --------------")
+            # file.write(counter)
+            # rospy.Publisher(counter)
+            # callback.publish(counter)
+            # rospy.Subscriber('/turtle1/pose', Pose, callback, (counter, goal))
+            # turtle_velocities.linear = 0.5
+            # turtle_velocities.angular = 0.5
+            # goal = waypoints[1]
+            # print("goal")
+            # dist2 = math.dist(goal, current_pose)
+            # diff_2_x = goal[0] - current_pose[0]
+            # diff_2_y = goal[1] - current_pose[1]
+            # second_angle = atan2(diff_2_y, diff_2_x) 
+
+            # # if counter == 0:
+            # angle_diff = second_angle - data.theta
+            # print("angle_diff",angle_diff)
+            # # else:
+            # #     angle_diff = first_angle - angle_list[] 
+
+            # if (angle_diff > 5): 
+            #     turtle_velocities.linear = 0        #linear velocity = 0 and angular velocity = 0.5
+            #     vel_pub.publish(turtle_velocities)  #Rotate until it finds the first waypoint
+                    
+            # else:
+            #     turtle_velocities.angular = 0
+            #     if (dist2 > 0.05):
+            #         vel_pub.publish(turtle_velocities)
+            #     else:
+            #         counter += 1
+            #         turtle_velocities.linear = 0
+            #         vel_pub.publish(turtle_velocities)
+            #         print(" second wavepoint reached --------------")
+
+        # rospy.loginfo(turtle_velocities.angular)
+    return 0
             
-
-
-    '''if (second_angle - first_angle > 0.5): #a < x < b
-        turtle_velocities.linear = 0
-        vel_pub.publish(turtle_velocities)
-        #t1 = rospy.Time.now().to_sec()
-        #current_distance = linear_speed * (t1 - t0)
-        #if (current_distance == dish_tresh):
-        #    i+=1       
-    else:
-        turtle_velocities.angular = 0
-        vel_pub.publish(turtle_velocities)'''
-    
-    '''if (first_angle == second_angle): #change to some range
-        turtle_velocities.angular = 0
-        vel_pub.publish(turtle_velocities)
-        t2 = rospy.Time.now().to_sec()
-        current_distance = linear_speed * (t2 - t1)
-        rospy.loginfo(current_distance)
-        if (dish_tresh == waypoint_1):
-            i+=1       
-    else:
-        turtle_velocities.linear = 0
-        vel_pub.publish(turtle_velocities)  
+    # #For reaching second waypoint:
+    # #current_pose = [data.x, data.y]
+    # goal = waypoints[1]
+    # dist2 = math.dist(goal, current_pose)
+    # diff_2_x = waypoints[1][0] - current_pose[0]
+    # diff_2_y = waypoints[1][1] - current_pose[1]
+    # second_angle = atan2(diff_2_y, diff_2_x) 
     
 
+    # if (second_angle - first_angle > 0.5):
+    #     turtle_velocities.angular = 0.5
+    #     turtle_velocities.linear = 0        #linear velocity = 0 and angular velocity = 0.5
+    #     vel_pub.publish(turtle_velocities)  #Rotate until it finds the first waypoint
+             
+    # else:
+    #     turtle_velocities.angular = 0
+    #     if (dist2 > 0.05):
+    #         vel_pub.publish(turtle_velocities)  #Move towards the waypoint
+    #     else:
+    #         turtle_velocities.linear = 0
+    #         turtle_velocities.angular = 0
+    #         vel_pub.publish(turtle_velocities)
+
+
+
+    # #For reaching third waypoint:
+
+    # #current_pose = [data.x, data.y]
+    # goal = waypoints[2]
+    # dist3 = math.dist(goal, current_pose)
+    # diff_3_x = waypoints[2][0] - current_pose[0]
+    # diff_3_y = waypoints[2][1] - current_pose[1]
+    # third_angle = atan2(diff_3_y, diff_3_x) 
     
-    if (second_angle == third_angle):
-        turtle_velocities.angular = 0
-        vel_pub.publish(turtle_velocities)
-        t3 = rospy.Time.now().to_sec()
-        current_distance = linear_speed * (t3 - t2)
-        rospy.loginfo(current_distance)
-        if (current_distance == dish_tresh):
-            i+=1       
-    else:
-        turtle_velocities.linear = 0
-        vel_pub.publish(turtle_velocities)
+
+    # if (third_angle - second_angle > 0.5): #a < x < b 
+    #     turtle_velocities.angular = 0.5
+    #     turtle_velocities.linear = 0        
+    #     vel_pub.publish(turtle_velocities)  #Rotate until it finds the first waypoint
+             
+    # else:
+    #     turtle_velocities.angular = 0
+    #     if (dist3 > 0.05):
+    #         vel_pub.publish(turtle_velocities)  #Move towards the waypoint
+    #     else:
+    #         turtle_velocities.linear = 0
+    #         vel_pub.publish(turtle_velocities)
 
 
+    # #For reaching fourth waypoint:
+
+    # #current_pose = [data.x, data.y]
+    # goal = waypoints[3]
+    # dist4 = math.dist(goal, current_pose)
+    # diff_4_x = waypoints[3][0] - current_pose[0]
+    # diff_4_y = waypoints[3][1] - current_pose[1]
+    # fourth_angle = atan2(diff_4_y, diff_4_x) 
     
-    if (third_angle == fourth_angle):
-        turtle_velocities.angular = 0
-        vel_pub.publish(turtle_velocities)
-        t4 = rospy.Time.now().to_sec()
-        current_distance = linear_speed * (t4 - t3)
-        rospy.loginfo(current_distance)
-        if (current_distance == dish_tresh):
-            i+=1       
-    else:
-        turtle_velocities.linear = 0
-        vel_pub.publish(turtle_velocities)'''
+
+    # if (fourth_angle - third_angle > 0.5): #a < x < b 
+    #     turtle_velocities.angular = 0.5
+    #     turtle_velocities.linear = 0        
+    #     vel_pub.publish(turtle_velocities)  #Rotate until it finds the first waypoint
+             
+    # else:
+    #     turtle_velocities.angular = 0
+    #     if (dist4 > 0.05):
+    #         vel_pub.publish(turtle_velocities)  #Move towards the waypoint
+    #     else:
+    #         turtle_velocities.linear = 0
+    #         vel_pub.publish(turtle_velocities)
 
 
+
+
+            
+        # Get to the first waypoint
+        # Line up the turlte to the waypoint
+        # GOOD
+        # If not at point
+        # if (dist > dist_thresh):
+        # Move toward waypoint
+        # vel_pub.publish(vel)
+        
     
 def restart_fn(req):
 
@@ -181,7 +276,6 @@ def restart_fn(req):
     init_y = req.y
     
     init = [init_x, init_y]
-    waypoints = rospy.get_param("/waypoint")
     #rospy.Subscriber('/turtle1/pose', Pose, callback)
     #turtle_pos = rospy.ServiceProxy('turtle1/teleport_absolute', TeleportAbsolute)
     
@@ -200,25 +294,25 @@ def restart_fn(req):
     teleport_turtle_abs_1(1, 1, 30)
 
     
-        
-    rospy.Subscriber('/turtle1/pose', Pose, callback)
-    
-    distance1 = math.dist(waypoints[0], init)
-    distance2 = math.dist(waypoints[1], waypoints[0])
-    distance3 = math.dist(waypoints[2], waypoints[1])
-    distance4 = math.dist(waypoints[3], waypoints[2])
+    angle_new = 0
+    angle_threshold = 0.5
+    # counter = 0
+    # goal = waypoints[0]
+    # rospy.Subscriber('/turtle1/pose', Pose, callback, (counter, angle_new, angle_threshold))
+    rospy.Subscriber('/turtle1/pose', Pose, call_back)
+    # counter = callback(Pose, counter)
+    print("counter- final", counter)
+    distance = 0
+    # distance1 = math.dist(waypoints[0], init)
+    # distance2 = math.dist(waypoints[1], waypoints[0])
+    # distance3 = math.dist(waypoints[2], waypoints[1])
+    # distance4 = math.dist(waypoints[3], waypoints[2])
 
 
-    distance = distance1+distance2+distance3+distance4
+    # distance = distance1+distance2+distance3+distance4
 
         
     return distance
-
-
-
-
-
-
 
 
 
@@ -236,9 +330,27 @@ def follower():
     rospy.Service('restart', Start, restart_fn)
 
 
-
-
-
 if __name__ == "__main__":
+    PI = 3.14
+    i = 0
+    t0 = 0
+    t1 = 0
+    t2 = 0
+    t3 = 0
+    init_x = 0
+    dish_tresh = 0.05
+    init_y = 0
+    waypoints = rospy.get_param("/waypoint")
+    with open("counter.json", 'w') as json_file:
+        json.dump({"counter":0}, json_file)
+    # angle_list = []
+    # print("counter", counter)
+    # angle_list.append("NA")
     follower()
     rospy.spin()
+    # waypoints = rospy.get_param("/waypoint")
+    # for i,j in enumerate(waypoints):
+    #     print(i)
+    #     print("---")
+    #     print(j)
+
