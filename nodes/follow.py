@@ -131,6 +131,9 @@ def call_back(data):
                 counter += 1
                 if counter < len(waypoints):
                     goal = waypoints[counter]
+                elif counter == len(waypoints):
+                    counter = 0
+                    goal = waypoints[0]
                 with open("counter.json", 'w') as json_file:
                     json.dump({"counter":counter}, json_file)
                 # if counter == len(waypoints)-1:
