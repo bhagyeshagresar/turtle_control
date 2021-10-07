@@ -2,7 +2,7 @@
 
 # Name: Bhagyesh Agresar
 
-#turtle_control Package
+# turtle_control Package
 The package makes the turtle in the `turtlesim` package follow different waypoints and move in a loop through these waypoints. The package contains the `setup`, `translate` and
  the `follow` node. The `setup` node draws the waypoints in the 2D space. `translate` node is used to convert messages between `geometry_msgs/Twist` and `turtle_control/TurtleVelocity`.
  The `follow` node causes the turtle to follow the waypoints drawn using the `setup` node
